@@ -1,8 +1,15 @@
+#!/usr/bin/env python
+
+# Bird Feeder - Feed Birds & Capture Images!
+# Copyright (C) 2020 redlogo
+#
+# This program is under MIT license
+
 import time
 
 import cv2
 
-from sender.rpi_camera import RPiCamera
+from rpi.rpi_camera import RPiCamera
 from object_detection.object_detection import Model
 from utilities.render import Render
 from utilities.stats import MovingAverage

@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+# Bird Feeder - Feed Birds & Capture Images!
+# Copyright (C) 2020 redlogo
+#
+# This program is under MIT license
+
 import socket
 
 from imutils.video import VideoStream
