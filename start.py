@@ -6,6 +6,7 @@
 # This program is under MIT license
 
 import time
+from datetime import datetime
 
 import cv2
 
@@ -35,8 +36,16 @@ def main():
     # initialize RPi camera
     rpi_cam = RPiCamera(width, height)
     rpi_cam.start()
-    print('RPi Bird Feeder -> Camera Started')
+    print('RPi Bird Feeder -> RPi Camera Ready')
     time.sleep(1.0)
+
+    # initialize DSLR
+    logging.basicConfig(format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
+    callback_obj = gp.check_result(gp.use_python_logging())
+    DSLR = gp.Camera()
+    DSLR.init()
+    print('RPi Bird Feeder -> DSLR Ready')
+    time.sleep(0.5)
 
     # initialize object detection model
     model = Model()
@@ -62,6 +71,7 @@ def main():
     image_count = 0
     print('RPi Bird Feeder -> Receiver Streaming')
     time.sleep(0.5)
+    bird_time = time.monotonic()
     while True:
         start_time = time.monotonic()
 
@@ -80,7 +90,15 @@ def main():
         # render image
         render.set_image(image)
         render.render_detection(model.labels, class_ids, boxes, image.shape[1], image.shape[0], (45, 227, 227), 3)
-        print(class_ids)
+        after_render_time = time.monotonic()
+        for i in range(len(class_ids)):
+            if int(class_ids[i]) == 15 and (after_render_time - bird_time) > 5:
+                bird_time = time.monotonic()
+                DSLR_path = DSLR.capture(gp.GP_CAPTURE_IMAGE)
+                print(datetime.now())
+                target = os.path.join('./DSLR', str(datetime.now()) + '.jpg')
+                DSLR_file = DSLR.file_get(DSLR_path.folder, DSLR_path.name, gp.GP_FILE_TYPE_NORMAL)
+                DSLR_file.save(target)
         render.render_fps(moving_average_fps.get_moving_average())
 
         # show image
@@ -117,7 +135,7 @@ def main():
                      moving_average_receive_time.get_moving_average() / total_time * 100,
                      moving_average_model_load_image_time.get_moving_average() / total_time * 100,
                      moving_average_model_inference_time.get_moving_average() / total_time * 100,
-                     moving_average_image_show_time.get_moving_average() / total_time * 100), end='\r')
+                     moving_average_image_show_time.get_moving_average() / total_time * 100))#, end='\r')
 
         # counter
         image_count += 1
