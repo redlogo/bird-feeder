@@ -100,7 +100,7 @@ def main():
                 # DSLR_file.save(target)
                 cmd = 'python3 /home/pi/Documents/bird-feeder/DSLR.py --DSLRPICDIR /home/pi/Documents/bird-feeder/DSLR_pics --FILENAME ' + str(bird_pic_count) + '.jpg'
                 print(cmd)
-                subprocess.call(cmd, shell=True)
+                subprocess.Popen(cmd, shell=True)
                 bird_pic_count += 1
         render.render_fps(moving_average_fps.get_moving_average())
 
