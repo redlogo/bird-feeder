@@ -72,6 +72,7 @@ def main():
     time.sleep(0.5)
     bird_time = time.monotonic()
     bird_pic_count = 0
+    p = subprocess.Popen(['ls', '-l'], shell=True)
     while True:
         start_time = time.monotonic()
 
@@ -90,17 +91,12 @@ def main():
         # render image
         render.set_image(image)
         render.render_detection(model.labels, class_ids, boxes, image.shape[1], image.shape[0], (45, 227, 227), 3)
-        after_render_time = time.monotonic()
         for i in range(len(class_ids)):
-            if int(class_ids[i]) == 0 and (after_render_time - bird_time) > 5:
+            if int(class_ids[i]) == 0 and p.poll() is not None: # and (after_render_time - bird_time) > 5:
                 bird_time = time.monotonic()
-                # DSLR_path = DSLR.capture(gp.GP_CAPTURE_IMAGE)
-                # target = os.path.join('./DSLR_pics', str(datetime.now()) + '.jpg')
-                # DSLR_file = DSLR.file_get(DSLR_path.folder, DSLR_path.name, gp.GP_FILE_TYPE_NORMAL)
-                # DSLR_file.save(target)
                 cmd = 'python3 /home/pi/Documents/bird-feeder/DSLR.py --DSLRPICDIR /home/pi/Documents/bird-feeder/DSLR_pics --FILENAME ' + str(bird_pic_count) + '.jpg'
                 print(cmd)
-                subprocess.Popen(cmd, shell=True)
+                p = subprocess.Popen(cmd, shell=True)
                 bird_pic_count += 1
         render.render_fps(moving_average_fps.get_moving_average())
 
