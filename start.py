@@ -6,7 +6,6 @@
 # This program is under MIT license
 
 import time
-from datetime import datetime
 
 import cv2
 
@@ -15,10 +14,7 @@ from object_detection.object_detection import Model
 from utilities.render import Render
 from utilities.stats import MovingAverage
 
-# import logging
-# import os
 import subprocess
-# import gphoto2 as gp
 
 
 def main():
@@ -37,14 +33,6 @@ def main():
     rpi_cam.start()
     print('RPi Bird Feeder -> RPi Camera Ready')
     time.sleep(1.0)
-
-    # # initialize DSLR_pics
-    # logging.basicConfig(format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
-    # callback_obj = gp.check_result(gp.use_python_logging())
-    # DSLR = gp.Camera()
-    # DSLR.init()
-    # print('RPi Bird Feeder -> DSLR_pics Ready')
-    # time.sleep(0.5)
 
     # initialize object detection model
     model = Model()
@@ -70,7 +58,6 @@ def main():
     image_count = 0
     print('RPi Bird Feeder -> Receiver Streaming')
     time.sleep(0.5)
-    bird_time = time.monotonic()
     bird_pic_count = 0
     p = subprocess.Popen(['ls', '-l'], shell=True)
     while True:
@@ -93,7 +80,6 @@ def main():
         render.render_detection(model.labels, class_ids, boxes, image.shape[1], image.shape[0], (45, 227, 227), 3)
         for i in range(len(class_ids)):
             if int(class_ids[i]) == 0 and p.poll() is not None: # and (after_render_time - bird_time) > 5:
-                bird_time = time.monotonic()
                 cmd = 'python3 /home/pi/Documents/bird-feeder/DSLR.py --DSLRPICDIR /home/pi/Documents/bird-feeder/DSLR_pics --FILENAME ' + str(bird_pic_count) + '.jpg'
                 print(cmd)
                 p = subprocess.Popen(cmd, shell=True)
